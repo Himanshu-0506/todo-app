@@ -1,113 +1,146 @@
-import Image from 'next/image'
+"use client"
+import React, { useState } from 'react';
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+  const [text, setText] = useState('');
+  const [desc, setDesc] = useState('');
+  const [tasks, setTasks] = useState([]);
+  const [datetime, setDateTime] = useState('');
+  const [editIndex, setEditIndex] = useState(-1); // Initialize as -1 to indicate no task is being edited
+
+  // Define an array of background colors for tasks
+  const taskBackgroundColors = ['#d3e3fa', '#b5c5dc'];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editIndex !== -1) {
+      // If an index is set, update the task
+      const updatedTasks = [...tasks];
+      updatedTasks[editIndex] = { text, desc, datetime };
+      setTasks(updatedTasks);
+      setEditIndex(-1); // Reset the editIndex
+    } else {
+      // Otherwise, add a new task
+      setTasks([...tasks, { text, desc, datetime }]);
+    }
+    setText('');
+    setDesc('');
+    setDateTime('');
+  }
+
+  const editTask = (index) => {
+    // Set the editIndex to the index of the task to be edited
+    setEditIndex(index);
+    const taskToEdit = tasks[index];
+    setText(taskToEdit.text);
+    setDesc(taskToEdit.desc);
+    setDateTime(taskToEdit.datetime);
+  }
+
+  const deleteTask = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks.splice(index, 1);
+    setTasks(updatedTasks);
+    setEditIndex(-1); // Reset the editIndex when deleting a task
+  }
+  
+  const renderTasks = tasks.map((task, i) => {
+    const backgroundColor = taskBackgroundColors[i % taskBackgroundColors.length];
+    const isBeingEdited = i === editIndex;
+
+    return (
+      <div key={i} style={{ margin: '10px', display: 'flex', alignItems: 'center', flexDirection: 'row'}}>
+        <div className="py-4 px-6 rounded-lg border shadow-md" style={{ backgroundColor}}>
+          <div>
+            {isBeingEdited ? (
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Enter Task Here"
+                  className="custom-input"
+                />
+                <input
+                  type="text"
+                  value={desc}
+                  onChange={(e) => setDesc(e.target.value)}
+                  placeholder="Enter Description Here"
+                  className="custom-input"
+                />
+                <input
+                  id="party"
+                  type="date"
+                  name="partydate"
+                  value={datetime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  className="custom-input"
+                />
+                <button type="submit" className='bg-slate-400 text-black px-5 py-3 mx-5 my-3 rounded-lg'>Save</button>
+              </form>
+            ) : (
+              <>
+                <h1 className='pt-2 text-xl font-bold text-gray-900'>{task.text}</h1>
+                <h1 className='pt-2 text-base text-gray-700'>{task.datetime}</h1>
+              </>
+            )}
+          </div>
+          <div className='py-5'>
+            {isBeingEdited ? null : (
+              <button onClick={() => editTask(i)} className='bg-slate-400 text-black px-5 py-3 my-3 rounded-lg'>Edit</button>
+            )}
+            <button onClick={() => deleteTask(i)} className='bg-slate-400 text-black px-5 py-3 mx-5 my-3 rounded-lg'>Delete</button>
+          </div>
         </div>
       </div>
+    );
+  });
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+  return (
+    <>
+      <div className="bg-slate-900">
+        <h1 className="text-white text-center py-5 px-5 text-3xl">To-Do App</h1>
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+      <form className="flex justify-center px-6" onSubmit={handleSubmit}>
+        <div className="px-5 py-5">
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Enter Task Here"
+            className="bg-slate-300 text-slate-800 py-3 px-2 rounded-lg items-center custom-input"
+          />
+        </div>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        <div className="px-5 py-5">
+          <input
+            id="party"
+            type="date"
+            name="partydate"
+            value={datetime}
+            onChange={(e) => setDateTime(e.target.value)}
+            className='bg-slate-300 text-slate-800 px-3 py-3 rounded-lg custom-input'
+          />
+        </div>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
+        <div className="py-5">
+          <button className="rounded bg-gray-600 text-white py-3 px-5">
+            Add
+          </button>
+        </div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        <hr />
+      </form>
+
+      <div className="py-3 px-10">
+        <ul style={{ marginTop: "10px" }}>
+          <li className=' rounded  text-gray-800'>
+            {renderTasks}
+          </li>
+        </ul>
       </div>
-    </main>
-  )
+    </>
+  );
 }
+

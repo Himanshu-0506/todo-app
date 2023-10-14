@@ -25,3 +25,12 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.custom-input::placeholder {
+  color: rgb(82, 82, 82) /* Set the placeholder text color */
+}
+
+.custom-input::placeholder{
+  font-weight: 500;
+}
+
